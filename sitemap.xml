@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/404.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/LICENSE.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/authors.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/index.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/OmopSketch-package.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/reexports.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/summariseEntryCharacteristics.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/summariseOmopTable.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/summarisePersonDays.html</loc>
+  </url>
+</urlset>
