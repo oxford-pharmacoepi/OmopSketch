@@ -19,6 +19,9 @@
     <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/index.html</loc>
   </url>
   <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/plotTableCounts.html</loc>
+  </url>
+  <url>
     <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/reexports.html</loc>
   </url>
   <url>
@@ -29,6 +32,9 @@
   </url>
   <url>
     <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/summarisePersonDays.html</loc>
+  </url>
+  <url>
+    <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/summariseTableCounts.html</loc>
   </url>
   <url>
     <loc>https://oxford-pharmacoepi.github.io/OmopSketch/reference/tableOmopTable.html</loc>
