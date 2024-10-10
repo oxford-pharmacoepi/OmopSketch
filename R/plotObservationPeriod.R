@@ -6,8 +6,10 @@
 #' "records per person", "duration" or "days to next observation period".
 #' @param plotType The plot type, it can be: "barplot", "boxplot" or
 #' "densityplot".
-#' @param facet Elements to facet by, it can be "cdm_name",
-#' "observation_period_ordinal", both or none.
+#' @param facet Columns to colour by. See possible columns to colour by with:
+#' `visOmopResults::tidyColumns()`.
+#' @param colour Columns to colour by. See possible columns to colour by with:
+#' `visOmopResults::tidyColumns()`.
 #' @return A ggplot2 object.
 #' @export
 #' @examples
@@ -27,7 +29,8 @@
 plotObservationPeriod <- function(result,
                                   variableName = "number subjects",
                                   plotType = "barplot",
-                                  facet = "cdm_name") {
+                                  facet = NULL,
+                                  colour = NULL) {
   # initial checks
   omopgenerics::validateResultArgument(result)
 
@@ -52,31 +55,37 @@ plotObservationPeriod <- function(result,
   result <- result |>
     dplyr::filter(.data$variable_name == .env$variableName)
 
-  optFacetColour <- c("cdm_name", "observation_period_ordinal")
+  validateFacet(facet, result)
+
+  optFacetColour <- visOmopResults::tidyColumns(result)
   optFacetColour <- optFacetColour[optFacetColour %in% visOmopResults::tidyColumns(result)]
-  omopgenerics::assertChoice(asCharacterFacet(facet), optFacetColour)
-  colour <- optFacetColour[!optFacetColour %in% facet]
+  omopgenerics::assertChoice(facet, optFacetColour, null = TRUE, call = call)
 
   # this is due to bug in visOmopResults to remove in next release
   # https://github.com/darwin-eu/visOmopResults/issues/246
   if (length(facet) == 0) facet <- NULL
   if (length(colour) == 0) colour <- NULL
 
+  if(length(unique(result$group_name)) == 1){
+    result <- result |>
+      dplyr::mutate(group_name  = "observation_period_ordinal",
+             group_level = "Overall")
+  }
+
   if (plotType == "barplot") {
     p <- visOmopResults::barPlot(
       result = result,
-      x = colour,
+      x = "observation_period_ordinal",
       y = "count",
       facet = facet,
-      colour = colour
-    )
+      colour = colour) +
+      ggplot2::ylab(stringr::str_to_sentence(unique(result$variable_name)))
   } else if (plotType == "boxplot") {
     p <- visOmopResults::boxPlot(
       result = result,
-      x = colour,
+      x = "observation_period_ordinal",
       facet = facet,
-      colour = colour
-    )
+      colour = colour)
   } else {
     p <- visOmopResults::scatterPlot(
       result = result,
@@ -87,8 +96,9 @@ plotObservationPeriod <- function(result,
       ribbon = FALSE,
       facet = facet,
       colour = colour,
-      group = optFacetColour
-    )
+      group = optFacetColour) +
+      ggplot2::xlab(stringr::str_to_sentence(unique(result$variable_name))) +
+      ggplot2::ylab("Density")
   }
 
   return(p)

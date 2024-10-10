@@ -32,7 +32,7 @@ plotInObservation <- function(result,
                               colour = NULL) {
   # initial checks
   omopgenerics::validateResultArgument(result)
-  validateFacet(facet) # To remove when there's a version in omopgenerics
+  validateFacet(facet, result) # To remove when there's a version in omopgenerics
 
   # subset to results of interest
   result <- result |>

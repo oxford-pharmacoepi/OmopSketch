@@ -8,7 +8,8 @@ plotObservationPeriod(
   result,
   variableName = "number subjects",
   plotType = "barplot",
-  facet = "cdm_name"
+  facet = NULL,
+  colour = NULL
 )
 }
 \arguments{
@@ -20,8 +21,11 @@ plotObservationPeriod(
 \item{plotType}{The plot type, it can be: "barplot", "boxplot" or
 "densityplot".}
 
-\item{facet}{Elements to facet by, it can be "cdm_name",
-"observation_period_ordinal", both or none.}
+\item{facet}{Columns to colour by. See possible columns to colour by with:
+\code{visOmopResults::tidyColumns()}.}
+
+\item{colour}{Columns to colour by. See possible columns to colour by with:
+\code{visOmopResults::tidyColumns()}.}
 }
 \value{
 A ggplot2 object.

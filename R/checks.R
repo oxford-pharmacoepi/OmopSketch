@@ -154,8 +154,19 @@ validateStudyPeriod <- function(cdm, studyPeriod, call = parent.frame()) {
 }
 
 #' @noRd
-validateFacet <- function(x, call = parent.frame()) {
-  if (rlang::is_formula(x)) return(invisible(NULL))
-  omopgenerics::assertCharacter(x, null = TRUE)
+validateFacet <- function(facet, result, call = parent.frame()) {
+
+  if(rlang::is_formula(facet)){
+    facet <- as.character(facet)
+    facet <- unlist(strsplit(facet, " \\+ "))
+    facet <- facet[facet != "~" & facet != "+" & facet != "."]
+  }
+    # Assert choices
+    optFacetColour <- visOmopResults::tidyColumns(result)
+    optFacetColour <- optFacetColour[optFacetColour %in% visOmopResults::tidyColumns(result)]
+
+    facet <- as.character(facet)
+    omopgenerics::assertChoice(facet, optFacetColour, null = TRUE, call = call)
+
   return(invisible(NULL))
 }

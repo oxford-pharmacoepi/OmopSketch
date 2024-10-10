@@ -93,7 +93,6 @@ test_that("summariseClinicalRecords() sex and ageGroup argument work", {
   #                                          ageGroup = list(c(30, Inf))))
   # expect_warning(summariseClinicalRecords(cdm,c("device_exposure","observation","death"), sex = FALSE,ageGroup = list(c(30, Inf))))
 
-
   expect_no_error(all <- summariseClinicalRecords(cdm,
                                                   c("observation_period", "visit_occurrence", "measurement"),
                                                   sex = TRUE,
