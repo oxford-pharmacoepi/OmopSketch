@@ -21,16 +21,15 @@ test_that("summarise code use - eunomia", {
   checkResultType(results, "summarise_concept_counts")
 
   # min cell counts:
-  expect_true(
-    all(is.na(
+  expect_equal(
       omopgenerics::suppress(results) |>
         dplyr::filter(
           variable_name == "overall",
           strata_level == "1909",
           group_level == "acetiminophen"
         ) |>
-        dplyr::pull("estimate_value")
-    ))
+        dplyr::pull("estimate_value"),
+      as.character(c(NA,NA))
   )
 
   # check is a summarised result
@@ -229,27 +228,35 @@ test_that("summarise code use - eunomia", {
   expect_true(nrow(results) == 0)
 
   # conceptId NULL (but reduce the computational time by filtering concepts first)
-  cdm$concept <- cdm$concept |>
-    dplyr::filter(grepl("k", concept_name))
-
-  skip("conceptId = NULL not supported yet")
-  results <- summariseConceptCounts(cdm = cdm,
-                                    year = FALSE,
-                                    sex = FALSE,
-                                    ageGroup = NULL)
-
-  results_concepts <- results |>
-    dplyr::select(variable_name) |>
-    dplyr::distinct() |>
-    dplyr::pull()
-  concepts <- cdm$concept |>
-    dplyr::select(concept_name) |>
-    dplyr::distinct() |>
-    dplyr::pull()
-
-  expect_true(all(results_concepts %in% c("overall",concepts)))
+  # cdm$concept <- cdm$concept |>
+  #   dplyr::filter(grepl("k", concept_name))
+  #
+  # skip("conceptId = NULL not supported yet")
+  # results <- summariseConceptCounts(cdm = cdm,
+  #                                   year = FALSE,
+  #                                   sex = FALSE,
+  #                                   ageGroup = NULL)
+  #
+  # results_concepts <- results |>
+  #   dplyr::select(variable_name) |>
+  #   dplyr::distinct() |>
+  #   dplyr::pull()
+  # concepts <- cdm$concept |>
+  #   dplyr::select(concept_name) |>
+  #   dplyr::distinct() |>
+  #   dplyr::pull()
+  #
+  # expect_true(all(results_concepts %in% c("overall",concepts)))
 
   # check attributes
+  results <- summariseConceptCounts(cdm = cdm,
+                                    conceptId = cs,
+                                    year = TRUE,
+                                    sex = TRUE,
+                                    ageGroup = list(c(0,17),
+                                                    c(18,65),
+                                                    c(66, 100)))
+
   expect_true(omopgenerics::settings(results)$package_name == "OmopSketch")
   expect_true(omopgenerics::settings(results)$result_type == "summarise_concept_counts")
   expect_true(omopgenerics::settings(results)$package_version == packageVersion("OmopSketch"))
@@ -363,63 +370,74 @@ test_that("summarise code use - mock data", {
   result <- summariseConceptCounts(cdm, conceptId)
 
   # Arthritis (codes 3 and 17), one record of 17 per ind and one record of 3 ind 1
-  expect_true(all(result |>
-                dplyr::filter(variable_name == "Arthritis") |>
-                dplyr::arrange(variable_level, estimate_name) |>
-                dplyr::pull(estimate_value) == c("1", "2", "1", "1")))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Arthritis") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("1", "2", "1", "1"))
 
   # Osteoarthritis (code 5), two records ind 2, one record ind 1
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Osteoarthritis of hip") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(2,3)))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Osteoarthritis of hip") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("2","3"))
 
   # Musculoskeletal disorder (code 1), one record each ind
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Musculoskeletal disorder") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(2,2)))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Musculoskeletal disorder") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("2","2"))
 
   result <- summariseConceptCounts(cdm, conceptId, ageGroup = list(c(0,2), c(3,150)), sex = TRUE)
   # Individuals belong to the same age group but to different sex groups
 
   # Arthritis (codes 3 and 17), one record of each per ind
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Arthritis" & strata_level == "Male") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(1,2)))
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Arthritis" & strata_level == "3 to 150 &&& Male") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(1,2)))
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Arthritis" & strata_level == "3 to 150") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(1,2,1,1)))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Arthritis" & strata_level == "Male") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("1","2"))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Arthritis" & strata_level == "3 to 150 &&& Male") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("1","2"))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Arthritis" & strata_level == "3 to 150") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("1","2","1","1"))
 
   # Osteoarthritis of hip (code 5), two records ind 2 and one ind 1
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Osteoarthritis of hip" & strata_level == "Female") |>
-                    dplyr::tally() |>
-                    dplyr::pull() == 2))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Osteoarthritis of hip" & strata_level == "Female") |>
+                 dplyr::tally() |>
+                 dplyr::pull(),
+               2)
 
   # Musculoskeletal disorder (code 1), one record each ind
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Musculoskeletal disorder" & strata_level == "3 to 150 &&& Female") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(1,1)))
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Musculoskeletal disorder" & strata_level == "3 to 150 &&& Male") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(1,1)))
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Musculoskeletal disorder" & strata_level == "3 to 150") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(2,2)))
-  expect_true(all(result |>
-                    dplyr::filter(variable_name == "Musculoskeletal disorder" & strata_level == "overall") |>
-                    dplyr::arrange(variable_level, estimate_name) |>
-                    dplyr::pull(estimate_value) == c(2,2)))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Musculoskeletal disorder" & strata_level == "3 to 150 &&& Female") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("1","1"))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Musculoskeletal disorder" & strata_level == "3 to 150 &&& Male") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("1","1"))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Musculoskeletal disorder" & strata_level == "3 to 150") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("2","2"))
+  expect_equal(result |>
+                 dplyr::filter(variable_name == "Musculoskeletal disorder" & strata_level == "overall") |>
+                 dplyr::arrange(variable_level, estimate_name) |>
+                 dplyr::pull(estimate_value),
+               c("2","2"))
 
   PatientProfiles::mockDisconnect(cdm)
 })
